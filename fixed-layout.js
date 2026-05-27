@@ -93,13 +93,24 @@ export class FixedLayout extends HTMLElement {
                 const doc = iframe.contentDocument
                 this.dispatchEvent(new CustomEvent('load', { detail: { doc, index } }))
                 const { width, height } = getViewport(doc, this.defaultViewport)
-                resolve({
+                const frame = {
                     element, iframe,
                     index,
                     width: parseFloat(width),
                     height: parseFloat(height),
                     onZoom,
-                })
+                }
+                this.dispatchEvent(new CustomEvent('create-overlayer', {
+                    detail: {
+                        doc,
+                        index,
+                        attach: overlayer => {
+                            frame.overlayer = overlayer
+                            doc.body?.append(overlayer.element)
+                        },
+                    },
+                }))
+                resolve(frame)
             }, { once: true })
             iframe.src = src
         })
@@ -313,6 +324,7 @@ export class FixedLayout extends HTMLElement {
                 result.push({
                     doc: frame.iframe.contentDocument,
                     index: frame.index,
+                    overlayer: frame.overlayer,
                 })
             }
         }

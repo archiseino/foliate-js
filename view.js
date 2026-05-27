@@ -500,6 +500,7 @@ export class View extends HTMLElement {
   }
   resolveNavigation(target) {
     try {
+      if (!target && target !== 0) return null;
       if (typeof target === 'number') return { index: target };
       if (typeof target.fraction === 'number') {
         const [index, anchor] = this.#sectionProgress.getSection(
