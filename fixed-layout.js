@@ -95,6 +95,7 @@ export class FixedLayout extends HTMLElement {
                 const { width, height } = getViewport(doc, this.defaultViewport)
                 resolve({
                     element, iframe,
+                    index,
                     width: parseFloat(width),
                     height: parseFloat(height),
                     onZoom,
@@ -306,10 +307,16 @@ export class FixedLayout extends HTMLElement {
         if (!s) return this.goToSpread(this.#index - 1, this.rtl ? 'left' : 'right', 'page')
     }
     getContents() {
-        return Array.from(this.#root.querySelectorAll('iframe'), frame => ({
-            doc: frame.contentDocument,
-            // TODO: index, overlayer
-        }))
+        const result = []
+        for (const frame of [this.#left, this.#center, this.#right]) {
+            if (frame?.iframe) {
+                result.push({
+                    doc: frame.iframe.contentDocument,
+                    index: frame.index,
+                })
+            }
+        }
+        return result
     }
     destroy() {
         this.#observer.unobserve(this)
