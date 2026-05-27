@@ -413,7 +413,7 @@ export class View extends HTMLElement {
   }
   async addAnnotation(annotation, remove) {
     const { value } = annotation;
-    if (value.startsWith(SEARCH_PREFIX)) {
+    if (typeof value === 'string' && value.startsWith(SEARCH_PREFIX)) {
       const cfi = value.replace(SEARCH_PREFIX, '');
       const { index, anchor } = await this.resolveNavigation(cfi);
       const obj = this.#getOverlayer(index);
