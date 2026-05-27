@@ -434,9 +434,16 @@ export class View extends HTMLElement {
       const { overlayer, doc } = obj;
       overlayer.remove(value);
       if (!remove) {
-        const range = doc ? anchor(doc) : anchor;
-        const draw = (func, opts) => overlayer.add(value, range, func, opts);
-        this.#emit('draw-annotation', { draw, annotation, doc, range });
+        let range;
+        try {
+          range = doc ? anchor(doc) : anchor;
+        } catch (e) {
+          // PDF page DOM may not match CFI steps (text layer structure differs)
+        }
+        if (range) {
+          const draw = (func, opts) => overlayer.add(value, range, func, opts);
+          this.#emit('draw-annotation', { draw, annotation, doc, range });
+        }
       }
     }
     const label = this.#tocProgress.getProgress(index)?.label ?? '';
@@ -477,8 +484,13 @@ export class View extends HTMLElement {
       const over = this.#getOverlayer(index);
       if (over) {
         const { doc } = over;
-        const range = anchor(doc);
-        this.#emit('show-annotation', { value, index, range });
+        let range;
+        try {
+          range = anchor(doc);
+        } catch (e) {
+          // PDF page DOM may not match CFI steps
+        }
+        this.#emit('show-annotation', { value, index, ...(range ? { range } : {}) });
       } else {
         this.#emit('show-annotation', { value, index });
       }
